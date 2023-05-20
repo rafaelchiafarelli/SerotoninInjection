@@ -62,15 +62,6 @@ void setup()
   queue = xQueueCreate(queueSize, sizeof(int));
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   Serial.begin(115200);
-  // configure LED PWM functionalitites
-  ledcSetup(redChannel, freq, resolution);
-  ledcSetup(greenChannel, freq, resolution);
-  ledcSetup(blueChannel, freq, resolution);
-
-  // attach the channel to the GPIO to be controlled
-  ledcAttachPin(redPin, redChannel);
-  ledcAttachPin(greenPin, greenChannel);
-  ledcAttachPin(bluePin, blueChannel);
 
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
@@ -111,12 +102,11 @@ void Task1code(void *parameter)
     {
       element = tmp;
     }
-    Serial.print(element);
-    Serial.print("|");
-    Serial.println("task1");
+
     switch (element)
     {
     case 0:
+    {
       leds[0] = CRGB::Black;
       leds[1] = CRGB::Black;
       leds[2] = CRGB::Black;
@@ -124,8 +114,10 @@ void Task1code(void *parameter)
       loading_step = 0;
       sick_step = 0;
       medium_step = 0;
-      break;
+    }
+    break;
     case 1:
+    {
       /* code */
       switch (loading_step)
       {
@@ -152,15 +144,14 @@ void Task1code(void *parameter)
         loading_step = 5;
         break;
       }
-
       FastLED.show();
       loading_step += 1;
       sick_step = 0;
       medium_step = 0;
-      break;
-
+    }
+    break;
     case 2:
-      /* code */
+    {
       switch (medium_step)
       {
       case 0:
@@ -168,7 +159,6 @@ void Task1code(void *parameter)
         leds[0] = CRGB::Black;
         leds[1] = CRGB::Black;
         leds[2] = CRGB::Black;
-
         break;
       case 1:
         leds[0] = CRGB::Red;
@@ -182,40 +172,41 @@ void Task1code(void *parameter)
         medium_step = 0;
         break;
       }
-
       FastLED.show();
       loading_step = 0;
       sick_step = 0;
       medium_step += 1;
-      break;
+    }
+    break;
     case 3:
       /* code */
-      switch (sick_step)
       {
-      case 0:
-        /* code */
-        leds[0] = CRGB::Black;
-        leds[1] = CRGB::Black;
-        leds[2] = CRGB::Black;
+        switch (sick_step)
+        {
+        case 0:
+          /* code */
+          leds[0] = CRGB::Black;
+          leds[1] = CRGB::Black;
+          leds[2] = CRGB::Black;
 
-        break;
-      case 1:
-        leds[0] = CRGB::Red;
-        leds[1] = CRGB::Red;
-        leds[2] = CRGB::Red;
-        break;
-      case 3:
-        leds[0] = CRGB::Black;
-        leds[1] = CRGB::Black;
-        leds[2] = CRGB::Black;
-        sick_step = 0;
-        break;
+          break;
+        case 1:
+          leds[0] = CRGB::Red;
+          leds[1] = CRGB::Red;
+          leds[2] = CRGB::Red;
+          break;
+        case 3:
+          leds[0] = CRGB::Black;
+          leds[1] = CRGB::Black;
+          leds[2] = CRGB::Black;
+          sick_step = 0;
+          break;
+        }
+        FastLED.show();
+        loading_step = 0;
+        sick_step += 1;
+        medium_step = 0;
       }
-
-      FastLED.show();
-      loading_step = 0;
-      sick_step += 1;
-      medium_step = 0;
       break;
 
     default:
@@ -239,7 +230,7 @@ void loop()
       if (client.available())
       {                         // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
-        Serial.write(c);        // print it out the serial monitor
+
         header += c;
         if (c == '\n')
         { // if the byte is a newline character
@@ -247,6 +238,7 @@ void loop()
           // that's the end of the client HTTP request, so send a response:
           if (currentLine.length() == 0)
           {
+            Serial.write(header.c_str()); // print it out the serial monitor
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
             client.println("HTTP/1.1 200 OK");
@@ -262,16 +254,13 @@ void loop()
             client.println("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js\"></script>");
             client.println("</head><body><div class=\"container\"><div class=\"row\"><h1>ESP Color Picker</h1></div>");
             client.println("<a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"change_color\" role=\"button\">Change Color</a> ");
-            client.println("<a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"carregar\" role=\"button\">carregar</a> ");
-            client.println("<a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"doente\" role=\"button\">doente</a> ");
-            client.println("<a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"medio\" role=\"button\">medio</a> ");
+            client.println("<a class=\"btn btn-primary btn-lg\" href=\"?r127g127b127c1d0m0&\" id=\"carregar\" role=\"button\">carregar</a> ");
+            client.println("<a class=\"btn btn-primary btn-lg\" href=\"?r127g127b127c0d1m0&\" id=\"doente\" role=\"button\">doente</a> ");
+            client.println("<a class=\"btn btn-primary btn-lg\" href=\"?r127g127b127c0d0m1&\" id=\"medio\" role=\"button\">medio</a> ");
 
             client.println("<input class=\"jscolor {onFineChange:'update(this)'}\" id=\"rgb\"></div>");
             client.println("<script>function update(picker) {document.getElementById('rgb').innerHTML = Math.round(picker.rgb[0]) + ', ' +  Math.round(picker.rgb[1]) + ', ' + Math.round(picker.rgb[2]);");
-            client.println("document.getElementById(\"change_color\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"c0d0m0&\";}");
-            client.println("document.getElementById(\"carregar\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"c1d0m0&\";}");
-            client.println("document.getElementById(\"doente\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"c0d1m0&\";}");
-            client.println("document.getElementById(\"medio\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"c0d0m1&\";}</script></body></html>");
+            client.println("document.getElementById(\"change_color\").href=\"?r\" + Math.round(picker.rgb[0]) + \"g\" +  Math.round(picker.rgb[1]) + \"b\" + Math.round(picker.rgb[2]) + \"c0d0m0&\";}</script></body></html>");
             // The HTTP response ends with another blank line
             client.println();
 
@@ -284,21 +273,15 @@ void loop()
               pos3 = header.indexOf('b');
               pos4 = header.indexOf('c');
               pos5 = header.indexOf('d');
-              pos7 = header.indexOf('m');
-              pos8 = header.indexOf('&');
+              pos6 = header.indexOf('m');
+              pos7 = header.indexOf('&');
               redString = header.substring(pos1 + 1, pos2);
               greenString = header.substring(pos2 + 1, pos3);
               blueString = header.substring(pos3 + 1, pos4);
               carregarString = header.substring(pos4 + 1, pos5);
               doenteString = header.substring(pos5 + 1, pos6);
-              medioString = header.substring(pos7 + 1, pos8);
+              medioString = header.substring(pos6 + 1, pos7);
 
-              /*Serial.println(redString.toInt());
-              Serial.println(greenString.toInt());
-              Serial.println(blueString.toInt());*/
-              ledcWrite(redChannel, redString.toInt());
-              ledcWrite(greenChannel, greenString.toInt());
-              ledcWrite(blueChannel, blueString.toInt());
               int i = 0;
               if (carregarString.toInt() == 1)
               {
