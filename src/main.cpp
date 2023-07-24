@@ -1,55 +1,23 @@
 
 
 // Load Wi-Fi library
+#include <led_animations.h>
 #include <WiFi.h>
-#include <FastLED.h>
+
+
 #include <HTTPClient.h>
 #include <WiFiClient.h>
-#define NUM_LEDS 3
-#define DATA_PIN 13
+
 QueueHandle_t queue;
 int queueSize = 10;
-CRGB leds[NUM_LEDS];
+animations::led_animations anime;
 // Replace with your network credentials
 const char *ssid = "PoliteaNET";//"VIVOFIBRA-D8FB";
 const char *password = "PoliteaN";//"72234ED8FB";
 String character_name = "ANIMUS_LED";
 const char *serverName = "http://192.168.1.104/device_register";
 String IP_Address;
-typedef enum{
-  dead,
-  sick,
-  filling,
-  draining,
-  full,
-  die,
-  wakeup,
-  sensor,
-  shift,
-  denial,
-  anger,
-  barganing,
-  depression,
-  acceptance
-}animation_types;
-#define ANIMATION_AMOUNT 9
-String animations[ANIMATION_AMOUNT] = {"dead","wakeup","sensor","shift", "denial", "anger", "barganing", "depression", "acceptance" };//{"sick", "filling", "draining", "full", "die"}
-animation_types available_animations[ANIMATION_AMOUNT] = {dead,wakeup,sensor,shift, denial, anger, barganing, depression, acceptance};
 void RegisterInServer();
-void animation_dead();
-void animation_sick();
-void animation_filling();
-void animation_draining();
-void animation_full();
-void animation_die();
-void animation_wakeup();
-void animation_sensor();
-void animation_shift();
-void animation_denial();
-void animation_anger();
-void animation_barganing();
-void animation_depression();
-void animation_acceptance();
 void Task1code(void *param);
 // Set web server port number to 80
 WiFiServer server(80);
@@ -62,7 +30,6 @@ String carregarString = "0";
 String medioString = "0";
 String doenteString = "0";
 
-String animation_string;
 int pos1 = 0;
 int pos2 = 0;
 int pos3 = 0;
@@ -100,7 +67,7 @@ TaskHandle_t Task1;
 void setup()
 {
   queue = xQueueCreate(queueSize, sizeof(int));
-  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+
   Serial.begin(115200);
 
   // Connect to Wi-Fi network with SSID and password
@@ -146,7 +113,7 @@ void setup()
   xTaskCreatePinnedToCore(
       Task1code, /* Function to implement the task */
       "Task1",   /* Name of the task */
-      10000,     /* Stack size in words */
+      15000,     /* Stack size in words */
       NULL,      /* Task input parameter */
       0,         /* Priority of the task */
       &Task1,    /* Task handle. */
@@ -154,282 +121,25 @@ void setup()
 }
 void Task1code(void *parameter)
 {
-  animation_types element = dead;
+  animations::animation_types element = animations::_dead;
 
   for (;;)
   {
     int tmp;
-    BaseType_t ret = xQueueReceive(queue, &tmp, portTICK_PERIOD_MS * 150);
+    Serial.println("before wait");
+    BaseType_t ret = xQueueReceive(queue, &tmp, portTICK_PERIOD_MS * 100);
     if (ret != errQUEUE_EMPTY)
     {
-      element = (animation_types)tmp;
+      element = (animations::animation_types)tmp;
       Serial.println("animation selected:");
       Serial.println(tmp);
     }
-
-    switch (element)
-    {
-    case dead:
-    {
-      animation_dead();
-    }
-    break;
-    case sick:
-    {
-      animation_sick();
-    }
-    break;
-    case filling:
-    {
-      animation_filling();
-    }
-    break;
-    case draining:
-      animation_draining();
-      break;
-  case full:
-  animation_full();
-    break;
-  case die:
-  animation_die();
-  break;
-  case wakeup:
-  animation_wakeup();
-  break;
-  case sensor:
-  animation_sensor();
-  break;
-  case shift:
-  animation_shift();
-  break;
-  case denial:
-  animation_denial();
-  break;
-
-  case anger:
-  animation_anger();
-  break;
-  case barganing:
-  animation_barganing();
-  break;
-  case depression:
-  animation_depression();
-  break;
-  case acceptance:
-  animation_acceptance();
-  break;
-    default:
-      break;
-    }
+    
+    anime.animate(element);
+    Serial.println("after animation");
   }
 }
 
-
-void animation_dead(){
-
-  leds[0] = CRGB::Black;
-  leds[1] = CRGB::Black;
-  leds[2] = CRGB::Black;
-  FastLED.show();
-
-}
-void animation_sick(){
-static int sick_step = 0;
-      /* code */
-      switch (sick_step)
-      {
-      case 0:
-        /* code */
-        leds[0] = CRGB::Black;
-        leds[1] = CRGB::Black;
-        leds[2] = CRGB::Black;
-
-        break;
-      case 1:
-        leds[0] = CRGB::Green;
-        break;
-
-      case 3:
-        leds[1] = CRGB::Green;
-        break;
-
-      case 5:
-        leds[2] = CRGB::Green;
-        break;
-
-      case 6:
-        sick_step = 5;
-        break;
-        default:
-        sick_step = 0;
-        break;
-      }
-      FastLED.show();
-      sick_step = 0;
-}
-void animation_filling(){
-  static int filling_step = 0;
-      switch (filling_step)
-      {
-      case 0:
-        /* code */
-        leds[0] = CRGB::Black;
-        leds[1] = CRGB::Black;
-        leds[2] = CRGB::Black;
-        break;
-      case 1:
-        leds[0] = CRGB::Red;
-        leds[1] = CRGB::Red;
-        leds[2] = CRGB::Black;
-        break;
-      case 3:
-        leds[0] = CRGB::Red;
-        leds[1] = CRGB::Black;
-        leds[2] = CRGB::Black;
-        
-        break;
-      default:
-        filling_step = 0;
-        break;
-      }
-      FastLED.show();
-      filling_step+=1;
-}
-void animation_draining(){
-      /* code */
-static int draining_step = 0;   
-        switch (draining_step)
-        {
-        case 0:
-          /* code */
-          leds[0] = CRGB::Green;
-          leds[1] = CRGB::Green;
-          leds[2] = CRGB::Yellow;
-
-          break;
-        case 1:
-          leds[0] = CRGB::Green;
-          leds[1] = CRGB::Yellow;
-          leds[2] = CRGB::Black;
-          break;
-        case 3:
-          leds[0] = CRGB::Yellow;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Red;
-          break;
-        case 4:
-          leds[0] = CRGB::Black;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-          break;
-        case 5:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-          break;
-        case 6:
-          leds[0] = CRGB::Black;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Black;
-          break;          
-        case 7:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-          draining_step=5; 
-          break;         
-        default:
-          draining_step = 0;              
-        }
-        FastLED.show();
-        draining_step+=1;
-      
-}
-void animation_full(){
-  leds[0] = CRGB::Green;
-  leds[1] = CRGB::Green;
-  leds[2] = CRGB::Green;
-  FastLED.show();
-
-}
-void animation_die(){
-static int die_step = 0;   
-        switch (die_step)
-        {
-        case 0:
-          /* code */
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-
-          break;
-        case 1:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Black;
-          break;
-        case 3:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Black;
-          break;
-        case 4:
-          leds[0] = CRGB::Black;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Black;
-          break;
-        case 5:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-          break;
-        case 6:
-          leds[0] = CRGB::Black;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Black;
-          break;          
-        case 7:
-          leds[0] = CRGB::Red;
-          leds[1] = CRGB::Red;
-          leds[2] = CRGB::Red;
-          break;         
-        case 8:
-          leds[0] = CRGB::Black;
-          leds[1] = CRGB::Black;
-          leds[2] = CRGB::Black;
-          die_step = 7;
-        break;
-        default:
-          die_step = 0;              
-        }
-        FastLED.show();
-        die_step+=1;
-
-}
-void animation_wakeup(){
-
-}
-void animation_sensor(){
-
-}
-void animation_shift(){
-
-}
-void animation_denial(){
-
-}
-void animation_anger(){
-
-}
-void animation_barganing(){
-
-}
-void animation_depression(){
-
-}
-void animation_acceptance(){
-
-}
 void loop()
 {
   WiFiClient client = server.available(); // Listen for incoming clients
@@ -471,14 +181,14 @@ void loop()
             client.println("</head><body><div class=\"container\"><div class=\"row\"><h1>ESP Color Picker</h1></div>");
             client.println("<a class=\"btn btn-primary btn-lg\" href=\"#\" id=\"change_color\" role=\"button\">Change Color</a> ");
 
-            for(int i=0; i<ANIMATION_AMOUNT; i++)
+            for(int i=0; i<INSTALLED_AMOUNT ; i++)
             {
               client.print("<a class=\"btn btn-primary btn-lg\" href=\"?");
-              client.print(animations[i]);
+              client.print(anime.animations_names[i]);
               client.print("&\" id=\"");
-              client.print(animations[i]);
+              client.print(anime.animations_names[i]);
               client.print("\" role=\"button\">");
-              client.print(animations[i]);
+              client.print(anime.animations_names[i]);
               client.println("</a> ");
             }
             
@@ -491,15 +201,15 @@ void loop()
             {
               pos1 = header.indexOf("?");
               pos2 = header.indexOf("&");
-              animation_string = header.substring(pos1+1,pos2);
+              String selected_animatino = header.substring(pos1+1,pos2);
               
               
-              Serial.println(animation_string);
-              for(int i=0; i<ANIMATION_AMOUNT;i++)
-              if(!animation_string.compareTo(animations[i]))
+              Serial.println(selected_animatino);
+              for(int i=0; i<INSTALLED_AMOUNT;i++)
+              if(!selected_animatino.compareTo(anime.animations_names[i]))
               {
-                Serial.println(animations[i]);
-                int j = available_animations[i];
+                
+                int j = anime.available_animations[i];
                 xQueueSend(queue, &j, portMAX_DELAY);
                 break;
               } 
@@ -559,6 +269,10 @@ void loop()
     Serial.println("Client disconnected.");
     Serial.println("");
   }
+  else
+  {
+    delay(10);
+  }
 }
 
 
@@ -584,34 +298,34 @@ void RegisterInServer()
       register_json+="\",\"IP\":\"";
       register_json+=IP_Address;
       register_json+="\",\"PORT\":\"80\",\"type\":\"Injector\",\"endpoints\":[";
-      for(int i=0 ; i<ANIMATION_AMOUNT;i++)
-      {
-      register_json+="\"";
-      register_json+=animations[i];
-      if(i < ANIMATION_AMOUNT-1)
-      {
-        register_json+="\",";
-      }
-      else
+      for(int i=0 ; i<INSTALLED_AMOUNT;i++)
       {
         register_json+="\"";
-      }
+        register_json+=anime.animations_names[i];
+        if(i < INSTALLED_AMOUNT-1)
+        {
+          register_json+="\",";
+        }
+        else
+        {
+          register_json+="\"";
+        }
       }
 
       register_json+="],\"animations\":[";
-      for(int i=0 ; i<ANIMATION_AMOUNT;i++)
-      {
-      register_json+="\"";
-      register_json+=animations[i];
-      if(i < ANIMATION_AMOUNT-1)
-      {
-        register_json+="\",";
-      }
-      else
+      for(int i=0 ; i<INSTALLED_AMOUNT;i++)
       {
         register_json+="\"";
-      }
-      
+        register_json+=anime.animations_names[i];
+        if(i < INSTALLED_AMOUNT-1)
+        {
+          register_json+="\",";
+        }
+        else
+        {
+          register_json+="\"";
+        }
+        
       }
       register_json+="]}";
       Serial.println(register_json);
@@ -622,7 +336,4 @@ void RegisterInServer()
         
       // Free resources
       http.end();
-      
-      client.clearWriteError();
-      client.stop();
 }
