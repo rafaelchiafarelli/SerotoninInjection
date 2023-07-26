@@ -1,5 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SELECTED_DEVICE 1
+#define SELECTED_DEVICE 2
+#define CHARACTER_NAME "LAURO" // "SOMA_LED" //"ANIMUS_LED" //"JORDANA" //"ANDREIA" //"MIGUEL"
 #endif

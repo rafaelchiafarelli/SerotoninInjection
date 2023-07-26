@@ -69,6 +69,26 @@ private:
     void yellow_alert();
     void green_alert();
     void no_alert();
+    int sick_step = 0;    
+    int filling_step = 0;
+    int draining_step = 0;   
+    int die_step = 0;       
+    uint8_t poster_led_wake = 0;
+    uint8_t helm_led_wake = 0;    
+    uint8_t poster_led_sensor = 0;
+    uint8_t helm_led_sensor = 0;    
+    uint8_t poster_led_shift = 0;
+    uint8_t helm_led_shift = 0;
+    uint8_t poster_led_denial = 0;
+    bool    direction_denial = true; 
+    uint8_t poster_led_anger = 0;
+    bool    direction_anger = true; 
+    uint8_t poster_led_barganing = 0;
+    bool direction_barganing = true;
+    uint8_t poster_led_depression = 0;
+    bool direction_depression = true;
+    uint8_t poster_led_acceptance = 0;
+    bool direction_acceptance = true;      
 public:
     #if SELECTED_DEVICE == 1
 
@@ -89,7 +109,28 @@ public:
     String animations_names[INSTALLED_AMOUNT] = {"dead","no_alert", "yellow_alert", "green_alert", "red_alert"};
 
     #endif
-
+    void restart(){
+        sick_step = 0;    
+        filling_step = 0;
+        draining_step = 0;   
+        die_step = 0;       
+        poster_led_wake = 0;
+        helm_led_wake = 0;    
+        poster_led_sensor = 0;
+        helm_led_sensor = 0;    
+        poster_led_shift = 0;
+        helm_led_shift = 0;
+        poster_led_denial = 0;
+        direction_denial = true; 
+        poster_led_anger = 0;
+        direction_anger = true; 
+        poster_led_barganing = 0;
+        direction_barganing = true;
+        poster_led_depression = 0;
+        direction_depression = true;
+        poster_led_acceptance = 0;
+        direction_acceptance = true;  
+    }
     void animate(animation_types element);
     led_animations();
     ~led_animations();

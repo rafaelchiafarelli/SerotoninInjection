@@ -7,8 +7,7 @@ using namespace animations;
  * 
  */
 void led_animations::wakeup(){
-    static uint8_t poster_led_wake = 0;
-    static uint8_t helm_led_wake = 0;
+
 
     poster_leds[poster_led_wake] = CRGB::White;
     if(poster_led_wake<= NUM_LEDS_POSTER)
@@ -23,8 +22,7 @@ void led_animations::wakeup(){
     }
 }
 void led_animations::sensor(){
-    static uint8_t poster_led_sensor = 0;
-    static uint8_t helm_led_sensor = 0;
+
 
     poster_leds[poster_led_sensor] = CRGB::White;
     if(poster_led_sensor<= NUM_LEDS_POSTER)
@@ -49,8 +47,7 @@ void led_animations::sensor(){
 
 
 void led_animations::shift(){
-    static uint8_t poster_led_shift = 0;
-    static uint8_t helm_led_shift = 0;
+
 
     poster_leds[poster_led_shift] = CRGB::Black;
     if(poster_led_shift<= NUM_LEDS_POSTER)
@@ -76,14 +73,13 @@ void led_animations::shift(){
 }
 
 void led_animations::denial(){
-    static uint8_t poster_led_denial = 0;
-    static bool direction = true;
-    if(direction)
+
+    if(direction_denial)
     {
         poster_led_denial+=1;
         if(poster_led_denial>15)
         {
-            direction=!direction;
+            direction_denial=!direction_denial;
         }
     }
     else
@@ -91,7 +87,7 @@ void led_animations::denial(){
         poster_led_denial-=1;
         if(poster_led_denial == 0)
         {
-            direction=!direction;
+            direction_denial=!direction_denial;
         }
     }
     for(int i=0;i<6; i++)
@@ -107,121 +103,117 @@ void led_animations::denial(){
 }
 
 void led_animations::anger(){
-    static uint8_t poster_led_denial = 0;
-    static bool direction = true;
-    if(direction)
+
+    if(direction_anger)
     {
-        poster_led_denial+=1;
-        if(poster_led_denial>15)
+        poster_led_anger+=1;
+        if(poster_led_anger>15)
         {
-            direction=!direction;
+            direction_anger=!direction_anger;
         }
     }
     else
     {
-        poster_led_denial-=1;
-        if(poster_led_denial == 0)
+        poster_led_anger-=1;
+        if(poster_led_anger == 0)
         {
-            direction=!direction;
+            direction_anger=!direction_anger;
         }
     }
     for(int i=6;i<12; i++)
     {
-        poster_leds[i].setRGB(5*poster_led_denial,0,0);
+        poster_leds[i].setRGB(5*poster_led_anger,0,0);
     }
     for(int i=0;i<NUM_LEDS_HELM; i++)
     {
-        helm_leds[i].setRGB(5*poster_led_denial,0,0);
+        helm_leds[i].setRGB(5*poster_led_anger,0,0);
     }
 
 }
 
 void led_animations::barganing(){
-    static uint8_t poster_led_denial = 0;
-    static bool direction = true;
-    if(direction)
+
+    if(direction_barganing)
     {
-        poster_led_denial+=1;
-        if(poster_led_denial>15)
+        poster_led_barganing+=1;
+        if(poster_led_barganing>15)
         {
-            direction=!direction;
+            direction_barganing=!direction_barganing;
         }
     }
     else
     {
-        poster_led_denial-=1;
-        if(poster_led_denial == 0)
+        poster_led_barganing-=1;
+        if(poster_led_barganing == 0)
         {
-            direction=!direction;
+            direction_barganing=!direction_barganing;
         }
     }
     for(int i=12;i<18; i++)
     {
-        poster_leds[i].setRGB(0,5*poster_led_denial,0);
+        poster_leds[i].setRGB(0,5*poster_led_barganing,0);
     }
     for(int i=0;i<NUM_LEDS_HELM; i++)
     {
-        helm_leds[i].setRGB(0,5*poster_led_denial,0);
+        helm_leds[i].setRGB(0,5*poster_led_barganing,0);
     }
 
 }
 
 void led_animations::depression(){
-    static uint8_t poster_led_denial = 0;
-    static bool direction = true;
-    if(direction)
+
+    if(direction_depression)
     {
-        poster_led_denial+=1;
-        if(poster_led_denial>15)
+        poster_led_depression+=1;
+        if(poster_led_depression>15)
         {
-            direction=!direction;
+            direction_depression=!direction_depression;
         }
     }
     else
     {
-        poster_led_denial-=1;
-        if(poster_led_denial == 0)
+        poster_led_depression-=1;
+        if(poster_led_depression == 0)
         {
-            direction=!direction;
+            direction_depression=!direction_depression;
         }
     }
     for(int i=18;i<24; i++)
     {
-        poster_leds[i].setRGB(5*poster_led_denial,0,5*poster_led_denial);
+        poster_leds[i].setRGB(5*poster_led_depression,0,5*poster_led_depression);
     }
     for(int i=0;i<NUM_LEDS_HELM; i++)
     {
-        helm_leds[i].setRGB(5*poster_led_denial,0,5*poster_led_denial);
+        helm_leds[i].setRGB(5*poster_led_depression,0,5*poster_led_depression);
     }
 
 }
 
 void led_animations::acceptance(){
-    static uint8_t poster_led_denial = 0;
-    static bool direction = true;
-    if(direction)
+
+    if(direction_acceptance)
     {
-        poster_led_denial+=1;
-        if(poster_led_denial>15)
+        poster_led_acceptance+=1;
+        if(poster_led_acceptance>15)
         {
-            direction=!direction;
+            direction_acceptance=!direction_acceptance;
         }
     }
     else
     {
-        poster_led_denial-=1;
-        if(poster_led_denial == 0)
+        poster_led_acceptance-=1;
+        if(poster_led_acceptance == 0)
         {
-            direction=!direction;
+            direction_acceptance=!direction_acceptance;
         }
     }
     for(int i=24;i<30; i++)
     {
-        poster_leds[i].setRGB(0,0,5*poster_led_denial);
+        poster_leds[i].setRGB(0,0,5*poster_led_acceptance);
     }
     for(int i=0;i<NUM_LEDS_HELM; i++)
     {
-        helm_leds[i].setRGB(0,0,5*poster_led_denial);
+        helm_leds[i].setRGB(0,0,5*poster_led_acceptance);
     }
 
 }

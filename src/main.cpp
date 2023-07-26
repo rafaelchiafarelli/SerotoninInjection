@@ -14,7 +14,8 @@ animations::led_animations anime;
 // Replace with your network credentials
 const char *ssid = "PoliteaNET";//"VIVOFIBRA-D8FB";
 const char *password = "PoliteaN";//"72234ED8FB";
-String character_name = "ANIMUS_LED";
+String character_name = CHARACTER_NAME;
+
 const char *serverName = "http://192.168.1.104/device_register";
 String IP_Address;
 void RegisterInServer();
@@ -133,6 +134,7 @@ void Task1code(void *parameter)
       element = (animations::animation_types)tmp;
       Serial.println("animation selected:");
       Serial.println(tmp);
+      anime.restart();
     }
     
     anime.animate(element);
