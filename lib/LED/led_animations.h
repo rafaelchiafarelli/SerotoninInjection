@@ -23,6 +23,7 @@ typedef enum{
   _green_alert,
   _red_alert,
   _no_alert,
+  _scan,
   AMOUNT
 }animation_types;
 
@@ -69,6 +70,7 @@ private:
     void yellow_alert();
     void green_alert();
     void no_alert();
+    void scan();
     int sick_step = 0;    
     int filling_step = 0;
     int draining_step = 0;   
@@ -104,9 +106,9 @@ public:
 
     #elif SELECTED_DEVICE == 3
 
-    #define INSTALLED_AMOUNT 5
-    animation_types available_animations[INSTALLED_AMOUNT] = {_dead,_no_alert, _yellow_alert, _green_alert, _red_alert};
-    String animations_names[INSTALLED_AMOUNT] = {"dead","no_alert", "yellow_alert", "green_alert", "red_alert"};
+    #define INSTALLED_AMOUNT 6
+    animation_types available_animations[INSTALLED_AMOUNT] = {_dead,_scan,_no_alert, _yellow_alert, _green_alert, _red_alert};
+    String animations_names[INSTALLED_AMOUNT] = {"dead","scan","no_alert", "yellow_alert", "green_alert", "red_alert"};
 
     #endif
     void restart(){

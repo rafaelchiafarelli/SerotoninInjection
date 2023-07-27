@@ -105,7 +105,10 @@ switch (element)
     case _no_alert:
     no_alert();
     break;
-            
+    case _scan:
+    scan();
+    break;
+                        
     default:
       break;
     }

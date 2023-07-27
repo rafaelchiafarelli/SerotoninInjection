@@ -152,3 +152,17 @@ void led_animations::no_alert(){
         soma_leds[i] = CRGB::Black;
     }
 }
+void led_animations::scan(){
+    static int scan_step = 0;
+    for(int i =0; i<NUM_LEDS_SOMA; i++)
+    {
+    
+        soma_leds[i] = CRGB::Black;
+    }
+    soma_leds[scan_step] = CRGB::White;
+    scan_step+=1;
+    if(scan_step > 15)
+    {
+        scan_step = 0;
+    }
+}
