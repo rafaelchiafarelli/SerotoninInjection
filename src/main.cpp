@@ -4,10 +4,13 @@
 #include <led_animations.h>
 #include <WiFi.h>
 
-
+#include <game_play.h>
+#include <io_handler.h>
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 
+io_handler buttons;
+GamePlay game;
 QueueHandle_t queue;
 int queueSize = 10;
 animations::led_animations anime;
@@ -62,11 +65,23 @@ unsigned long currentTime = millis();
 unsigned long previousTime = 0;
 // Define timeout time in milliseconds (example: 2000ms = 2s)
 const long timeoutTime = 2000;
+animations::animation_types element = animations::_dead;
+
+typedef enum{
+  normal_play,
+  demonstration,
+  testing
+}machine_mode;
+machine_mode play_state_machine = normal_play;
 
 TaskHandle_t Task1;
 
+#define game_mode 32
+#define play 33
 void setup()
 {
+  pinMode(game_mode, INPUT_PULLUP);
+  pinMode(play, INPUT_PULLUP);
   queue = xQueueCreate(queueSize, sizeof(int));
 
   Serial.begin(115200);
@@ -110,7 +125,7 @@ void setup()
   Serial.println(WiFi.localIP());
   IP_Address = WiFi.localIP().toString();
   server.begin();
-  RegisterInServer();
+
   xTaskCreatePinnedToCore(
       Task1code, /* Function to implement the task */
       "Task1",   /* Name of the task */
@@ -122,28 +137,11 @@ void setup()
 }
 void Task1code(void *parameter)
 {
-  animations::animation_types element = animations::_dead;
+  
 
   for (;;)
   {
-    int tmp;
-    Serial.println("before wait");
-    BaseType_t ret = xQueueReceive(queue, &tmp, portTICK_PERIOD_MS * 100);
-    if (ret != errQUEUE_EMPTY)
-    {
-      element = (animations::animation_types)tmp;
-      Serial.println("animation selected:");
-      Serial.println(tmp);
-      anime.restart();
-    }
-    
-    anime.animate(element);
-    Serial.println("after animation");
-  }
-}
 
-void loop()
-{
   WiFiClient client = server.available(); // Listen for incoming clients
 
   if (client)
@@ -273,8 +271,62 @@ void loop()
   }
   else
   {
-    delay(10);
+    vTaskDelay(100);
   }
+  }
+}
+
+void loop()
+{
+
+    int tmp;
+
+    BaseType_t ret = xQueueReceive(queue, &tmp, portTICK_PERIOD_MS * game.get_dificulty() );
+
+
+    if (ret != errQUEUE_EMPTY)
+    {
+      play_state_machine = testing;
+      switch((animations::animation_types)tmp)
+      {
+        case animations::animation_types::_dead:
+          play_state_machine = normal_play;
+        break;
+                                     
+        default:
+          element = (animations::animation_types)tmp;
+          break;
+        
+      }
+      
+      anime.restart();
+      Serial.println("entered test mode with the animation:");
+      Serial.println(tmp);
+      
+    }
+    buttons.handler();
+    switch(play_state_machine)
+    {
+      case demonstration:
+
+      break;
+      case normal_play:
+
+        element = game.game_handler(buttons.get_action(), anime.get_cur_pos());
+        anime.animate(element,game.get_hold(),game.get_mode(),game.get_lives(), game.get_points());
+      break;
+      case testing: 
+        anime.animate(element,false,3,4,11);
+
+      break;
+    }
+    
+
+    game.to_string();
+
+
+
+
 }
 
 
